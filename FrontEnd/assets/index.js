@@ -101,5 +101,3 @@ fetch("http://localhost:5678/api/works")
 
     activeButton.classList.add("active-btn")
 }
-
-    
