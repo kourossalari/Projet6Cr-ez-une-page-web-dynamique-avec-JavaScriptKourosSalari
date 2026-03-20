@@ -42,6 +42,12 @@ if(token) {
   modalWrapper.addEventListener("click", (e) => {
     e.stopPropagation()
    })
+
+   modalWrapper2.addEventListener("click", (e) => {
+    e.stopPropagation()
+   })
+
+   buttonAddPictureModal()
 }
 
     function afficherGallery(works) {
@@ -149,11 +155,73 @@ if(token) {
 
     works.forEach(work => {
         const figure = document.createElement("figure")
+        const corbeille = document.createElement("img")
         const img = document.createElement("img")
 
         img.src = work.imageUrl
+        corbeille.src = "/assets/images/corbeille.png"
 
         figure.appendChild(img)
+        figure.appendChild(corbeille)
         midModal.appendChild(figure)
+
+        corbeille.classList.add("icone-trash")
+
+        corbeille.dataset.id = work.id
+
+        corbeille.addEventListener("click", async (e) =>{
+
+        const id = e.target.dataset.id
+        const url = `http://localhost:5678/api/works/${id}`
+
+        try {
+            const del = await fetch(url, {
+            method: "DELETE", 
+            headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+       }})
+
+       if(!del.ok) {
+                alert("Erreur lors de la suppression")
+                return
+            }
+                await refreshWorks()
+
+        }catch(err) {
+            console.log(err)
+            alert("Impossible de supprimer votre photo")
+        }
+})
     })
+
+    if (!modalWrapper.querySelector(".middle-modal")) {
+        modalWrapper.appendChild(midModal)
+    }
 }
+
+    async function refreshWorks() {
+
+        const res = await fetch("http://localhost:5678/api/works")
+        const works = await res.json()
+
+        gallery.innerHTML = ""
+        afficherGallery(works)
+        galleryModal(works)
+    }
+    
+    function buttonAddPictureModal() {
+        const buttonModal = document.querySelector(".envoiePhoto").addEventListener("click",(e) => {
+            modalWrapper2.style.display = "block"
+            modalWrapper.style.display = "none"
+        
+        const closeBtn = document.querySelector(".closeBtn")
+        closeBtn.addEventListener("click", closeModal)
+        modal.addEventListener("click", closeModal)
+        const back = document.querySelector(".back")
+        back.addEventListener("click", () => {
+        modalWrapper2.style.display = "none"
+        modalWrapper.style.display = "block"
+    })
+        })
+    }
