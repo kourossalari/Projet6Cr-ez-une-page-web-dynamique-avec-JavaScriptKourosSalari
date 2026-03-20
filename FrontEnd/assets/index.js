@@ -19,7 +19,30 @@ fetch("http://localhost:5678/api/works")
     console.log(works)
    afficherGallery(works)
    creerFiltre(works)
+   galleryModal(works)
 })
+
+if(token) {
+    log.textContent = "logout"
+    bandeau.style.display = "flex"
+    modif.style.display = "flex"
+    modif.style.gap = "10.42px"
+
+    openGalleryModal()
+
+    log.addEventListener("click", () => {
+    localStorage.removeItem("token")
+    window.location.reload()
+})
+    
+
+  closeBtn.addEventListener("click", closeModal)
+    modal.addEventListener("click", closeModal)
+
+  modalWrapper.addEventListener("click", (e) => {
+    e.stopPropagation()
+   })
+}
 
     function afficherGallery(works) {
     works.forEach(work => {
@@ -100,4 +123,37 @@ fetch("http://localhost:5678/api/works")
     })
 
     activeButton.classList.add("active-btn")
+}
+
+    function openGalleryModal() {
+    openBtn.addEventListener("click", (e) => {
+    e.preventDefault()
+    modal.style.display = "flex"
+    modal.setAttribute("aria-hidden", "false")
+  })
+    }
+
+    function closeModal(e){
+        modal.setAttribute("aria-hidden","true")
+        resetInputPicture()
+
+        setTimeout(() => {
+    modal.style.display = "none"
+  }, 300)
+    }
+
+    function galleryModal(works) {
+    const midModal = document.querySelector(".middle-modal") || document.createElement("div");
+    midModal.classList.add("middle-modal")
+    midModal.innerHTML = ""
+
+    works.forEach(work => {
+        const figure = document.createElement("figure")
+        const img = document.createElement("img")
+
+        img.src = work.imageUrl
+
+        figure.appendChild(img)
+        midModal.appendChild(figure)
+    })
 }
