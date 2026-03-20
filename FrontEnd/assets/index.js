@@ -209,6 +209,29 @@ if(token) {
         afficherGallery(works)
         galleryModal(works)
     }
+ 
+    function resetInputPicture() {
+        const bodyModal2P = document.querySelector(".bodyModal2 p")
+        const labelImageInput = document.querySelector("#labelImageInput")
+        const iconeBodyModal = document.querySelector("#iconeBodyModal")
+        const imagePreview = document.querySelector("#previewImage")
+        const inputSubmit = document.querySelector(".inputSubmit")
+        const inputFile = document.querySelector("#imageInput")
+        const inputTitle = document.querySelector("#Title")
+        
+        inputFile.value = ""
+
+        inputTitle.value = ""
+
+        imagePreview.src = ""
+        imagePreview.style.display = "none"
+
+        bodyModal2P.style.display = "block"
+        labelImageInput.style.display = "flex"
+        iconeBodyModal.style.display = "block"
+
+        inputSubmit.style.background = "#A7A7A7"
+    }
     
     function buttonAddPictureModal() {
         const buttonModal = document.querySelector(".envoiePhoto").addEventListener("click",(e) => {
@@ -223,5 +246,91 @@ if(token) {
         modalWrapper2.style.display = "none"
         modalWrapper.style.display = "block"
     })
+
+        addWorkForm()
+        buttonImportPicture()
         })
     }
+
+    function buttonImportPicture() {
+        const bodyModal2P = document.querySelector(".bodyModal2 p")
+        const bodyModal2 = document.querySelector(".bodyModal2")
+        const labelImageInput = document.querySelector("#labelImageInput")
+        const iconeBodyModal = document.querySelector("#iconeBodyModal")
+        const imagePreview = document.querySelector("#previewImage")
+        const inputSubmit = document.querySelector(".inputSubmit")
+        const importPhoto = document.querySelector("#imageInput").addEventListener("change",(e) => {
+        
+        const files = e.target.files
+        const file = files[0]
+
+        if(files.length === 0) return
+        
+        if (file.size > 4_000_000) {
+            alert("Le fichier est trop lourd")
+            return
+        }
+
+        if(files.length > 0) {
+            inputSubmit.style.background = "#1D6154"
+        } 
+
+        const url = URL.createObjectURL(file)
+        imagePreview.src = url
+        bodyModal2P.style.display = "none"
+        labelImageInput.style.display = "none"
+        iconeBodyModal.style.display = "none"
+        imagePreview.style.display = "block"
+        })
+    }
+
+
+    function addWorkForm() {
+    const formModal2 = document.querySelector("#addWorkForm")
+
+    formModal2.addEventListener("submit", async (e) => {
+        e.preventDefault()
+
+        const InputCategory = formModal2.querySelector("#category").value
+        const inputTitle = formModal2.querySelector("#Title").value.trim()
+        const importPhoto = formModal2.querySelector("#imageInput").files[0]
+
+        if (inputTitle === "") {
+            alert("Veuillez remplir un titre")
+            return
+        }
+        
+        if (!importPhoto) {
+            alert("Veuillez ajouter une image")
+            return
+        }
+
+        const formData = new FormData(formModal2)
+
+        try {
+            const res = await fetch("http://localhost:5678/api/works", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                body: formData
+            })
+
+            if (!res.ok) {
+                alert("Erreur lors de l'envoi de l'image")
+                return
+            }
+
+            await refreshWorks()
+            closeModal()
+            modalWrapper2.style.display = "none"
+            modalWrapper.style.display = "block"
+
+            
+
+        } catch(err) {
+            console.log(err)
+            alert("Impossible d'envoyer votre photo")
+        }
+    })
+}
